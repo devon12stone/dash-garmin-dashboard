@@ -6,7 +6,7 @@ This is a work in progress project that makes use of Garmin Connect and Dash to 
 
 All required packages can be installed using the requirements.txt file.
 
-### Installing
+### Environment
 Before running the app make sure to activate the Python environment titled 'env'.
 
 ### Running the Dash App
