@@ -1,0 +1,13 @@
+name: garmin
+channels:
+  - defaults
+dependencies:
+  - pip
+  - flask
+  - numpy
+  - dash
+  - pandas
+  - plotly
+  - pip:
+    - garminconnect
+
