@@ -2,6 +2,7 @@ name: garmin
 channels:
   - defaults
 dependencies:
+  - ipython
   - pip
   - flask
   - numpy
