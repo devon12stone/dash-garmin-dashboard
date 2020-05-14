@@ -3,7 +3,6 @@ from datetime import datetime
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_bootstrap_components as dbc 
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.express as px
@@ -45,6 +44,7 @@ app.layout = html.Div(
                             )
                         ],
                         id='title',
+                        style={'padding': 10,'backgroundColor': '#F9F9F9'}
                 ),
 
                 html.Div(
@@ -68,26 +68,9 @@ app.layout = html.Div(
                                 )
                             ],
                             id='date',
-                            style={'padding': 10,'textAlign': 'center'}
+                            style={'padding': 10,'textAlign': 'center','backgroundColor': '#F9F9F9'}
                         )
                     ]
-                ),
-                dbc.Row(
-                    children=[
-                        html.Div(
-                            [html.P("Number of Days"),html.H6(id="days_text")],
-                            id="days",
-                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-                        ),
-                        html.Div(
-                            [html.P("Number of Activities"),html.H6(id="activities_text")],
-                            id="activities",
-                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-                        )
-
-                    ],
-                    id='kpi_days',
-                    align="center"
                 ),
                 html.Div(
                     html.Img(
@@ -100,29 +83,69 @@ app.layout = html.Div(
                                 "align":"left"
                             },
                     ),
-                    id='image'
+                    id='image',
+                    style={'padding': 10,'backgroundColor': '#F9F9F9'}
                 )
             ],
             className='four columns div-user-controls',
             id='left',
-            style={'backgroundColor': '#F9F9F9'}
+            style={'display': 'inline-block','height':'100%','verticalAlign':'middle','top':'0px','left':'0px'}
         ),
 
         # define the right elements
         html.Div(
             children=[
 
+                html.Div(
+                    children=[
+                        html.Div(
+                            [html.P("Number of Days"),html.H6(id="days_text")],
+                            id="days",
+                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                        ),
+                        html.Div(
+                            [html.P("Number of Activities"),html.H6(id="activities_text")],
+                            id="activities",
+                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                        ),
+                        html.Div(
+                            [html.P("Avg Duration of Activities"),html.H6(id="duration_text")],
+                            id="duration",
+                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                        ),
+                        html.Div(
+                            [html.P("Avg Calories Burnt"),html.H6(id="cal_text")],
+                            id="calories",
+                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                        )
+                        ,
+                        html.Div(
+                            [html.P("Avg Distance"),html.H6(id="dist_text")],
+                            id="distance",
+                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                        ),
+                        html.Div(
+                            [html.P("Avg Heart Rate"),html.H6(id="hr_text")],
+                            id="heart_rate",
+                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                        )
+
+                    ],
+                    id='kpi_days',
+                    style={"display": "flex", "flex-direction": "row",'align': 'center','padding': 10}
+                ),
+
                 dcc.Graph(figure=bar,id='bar'),
                 dcc.Graph(figure=sca,id='scatter')
             ],
             className='eight columns div-for-charts bg-grey',
             id='right',
-            style={'backgroundColor': '#F9F9F9'}
+            style={'backgroundColor': '#F9F9F9','display': 'inline-block'}
         )
 
     ],
     id='main-container',
-    style={'backgroundColor': '#F9F9F9'}
+    style={'backgroundColor': '#ffffff','display': 'inline-block'}
 )
 
 ###### call backs ######
@@ -147,6 +170,52 @@ def update_activities_text(start_date, end_date):
     no_activities = df2.activityId.nunique()
     return no_activities
 
+@app.callback(
+    dash.dependencies.Output('duration_text', 'children'),
+    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
+     dash.dependencies.Input('my-date-picker-range', 'end_date')]
+)
+def update_duration_text(start_date, end_date):
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    avg_dur = round(df2.duration.mean(),2)
+    avg_str = "{dur} minutes".format(dur=str(avg_dur))
+    return avg_str
+
+@app.callback(
+    dash.dependencies.Output('cal_text', 'children'),
+    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
+     dash.dependencies.Input('my-date-picker-range', 'end_date')]
+)
+def update_calories_text(start_date, end_date):
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    avg_cal = round(df2.calories.mean(),2)
+    return avg_cal
+
+@app.callback(
+    dash.dependencies.Output('dist_text', 'children'),
+    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
+     dash.dependencies.Input('my-date-picker-range', 'end_date')]
+)
+def update_distance_text(start_date, end_date):
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    avg_dist = round(df2.distance.div(1000).mean(),2)
+    avg_str = "{d} km".format(d=str(avg_dist))
+    return avg_str
+
+@app.callback(
+    dash.dependencies.Output('hr_text', 'children'),
+    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
+     dash.dependencies.Input('my-date-picker-range', 'end_date')]
+)
+def update_distance_text(start_date, end_date):
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    avg_hr = round(df2.averageHR.mean(),2)
+    avg_str = "{hr} beats/min".format(hr=str(avg_hr))
+    return avg_str
 
 # figure callbacks
 @app.callback(
