@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.express as px
+from datetime import date as dt
 
 
 def make_bar_chart(df):
@@ -27,7 +28,7 @@ def make_bar_chart(df):
     bar.update_layout(
         title={'text':'Exercise Type Breakdown','y':0.9,'x':0.5,'xanchor':'center','yanchor':'top'},
         plot_bgcolor='whitesmoke',
-        font={'family':"Courier New, monospace",'size':10,'color':"#7f7f7f"},
+        font={'size':10,'color':"#779ECB"},
         legend={'x': 0.75, 'y': 0.9, 'traceorder':'normal'}
     )
 
@@ -55,9 +56,9 @@ def make_scatter_plot(df):
     sca.update_layout(
         title={'text':'Duration vs Calories Burnt','y':0.9,'x':0.5,'xanchor':'center','yanchor':'top'},
         plot_bgcolor='whitesmoke',
-        font={'family':"Courier New, monospace",'size':10,'color':"#7f7f7f"},
+        font={'size':10,'color':"#779ECB"},
         legend={'x': 0.75, 'y': 0.1, 'traceorder':'normal'},
-        xaxis_title='Duration',
+        xaxis_title='Duration (mins)',
         yaxis_title='Calories Burnt'
 
     )
