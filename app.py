@@ -22,63 +22,85 @@ sca = make_scatter_plot(df)
 app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
 
 # create app layout
-app.layout = html.Div(style={'backgroundColor': '#ffffff'}, children=[
+app.layout = html.Div(
+    children=[
 
-    # define the left element
-    html.Div(className='four columns div-user-controls', children=[
+        # define the left elements
+        html.Div(
+         children=[
 
-        html.H2(
-            children='Garmin Connect Dashboard',
-            style={
-                'textAlign': 'center',
-                'color': '#7FDBFF'
-            }
+            html.Div(
+                children=[
+
+                        html.H2(
+                            children='Garmin Connect Dashboard',
+                            style={
+                                'textAlign': 'center',
+                                'color': '#7FDBFF'
+                            }
+                        ),
+
+                        html.Div(children='This dashboard was developed to help people analyse the trends in their excerise routines and help them improve their training.',
+                            style={
+                            'textAlign': 'center',
+                            'color': '#7FDBFF'
+                            }
+                        ),
+
+                    ],
+                    id='title',
+            ),
+
+            html.Div(
+                children=[
+
+                    html.Div(children=[
+
+                        html.Label('Date Range Selector',
+                            style={
+                            'textAlign': 'left',
+                            'color': "#7FDBFF"
+                            }
+                        ),
+                        dcc.DatePickerRange(
+                            id='my-date-picker-range',
+                            month_format='MMM Do, YY',
+                            start_date=df.startTimeLocal.min(),
+                            end_date=df.startTimeLocal.max(),
+                            end_date_placeholder_text="End Date",
+                            min_date_allowed=df.startTimeLocal.min(),
+                            max_date_allowed=dt.today()
+                        ),
+                        html.Div(id='output-container-date-picker-range'
+                        )
+
+                    ]),
+                ]
+            )
+
+            ],
+            className='four columns div-user-controls',
+            id='left',
+            style={'backgroundColor': '#F9F9F9'}
         ),
 
-        html.Div(children='This dashboard was developed to help people analyse the trends in their excerise routines and help them improve their training.',
-            style={
-            'textAlign': 'center',
-            'color': '#7FDBFF'
-            }
-        ),
+        # define the right elements
+        html.Div(
+            children=[
 
-        html.Div(children=[
+                dcc.Graph(figure=bar,id='bar'),
 
-            html.P(" "),
+                dcc.Graph(figure=sca,id='scatter')
+            ],
+            className='eight columns div-for-charts bg-grey',
+            id='right',
+            style={'backgroundColor': '#F9F9F9'}
+        )
 
-            html.Label('Date Range Selector',
-                style={
-                'textAlign': 'lefts',
-                'color': "#7f7f7f"
-                }
-            ),
-            dcc.DatePickerRange(
-                id='my-date-picker-range',
-                month_format='MMM Do, YY',
-                start_date=df.startTimeLocal.min(),
-                end_date=df.startTimeLocal.max(),
-                end_date_placeholder_text="End Date",
-                min_date_allowed=df.startTimeLocal.min(),
-                max_date_allowed=dt.today(),
-
-
-            ),
-            html.Div(id='output-container-date-picker-range')
-
-        ]),
-
-
-    ]),
-
-    # define the right element
-    html.Div(className='eight columns div-for-charts bg-grey', children=[
-
-        dcc.Graph(figure=bar,id='bar'),
-
-        dcc.Graph(figure=sca,id='scatter')
-    ])
-
-])
+    ],
+    id='main-container',
+    style={'backgroundColor': '#F9F9F9'}
+)
 
 # call backs
 @app.callback(
