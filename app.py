@@ -27,57 +27,62 @@ app.layout = html.Div(
 
         # define the left elements
         html.Div(
-         children=[
+            children=[
 
-            html.Div(
-                children=[
+                html.Div(
+                    children=[
 
-                        html.H2(
-                            children='Garmin Connect Dashboard',
-                            style={
-                                'textAlign': 'center',
-                                'color': '#7FDBFF'
-                            }
-                        ),
+                            html.H1(
+                                children='Garmin Connect Dashboard',
+                                style={'textAlign': 'center','color': '#7FDBFF'}
+                            ),
 
-                        html.Div(children='This dashboard was developed to help people analyse the trends in their excerise routines and help them improve their training.',
-                            style={
-                            'textAlign': 'center',
-                            'color': '#7FDBFF'
-                            }
-                        ),
+                            html.P(
+                                children='This dashboard allows users to view and analyse their excerise trends.',
+                                style={'textAlign': 'center','color': '#779ECB'}
+                            )
+                        ],
+                        id='title',
+                ),
 
-                    ],
-                    id='title',
-            ),
+                html.Div(
+                    children=[
 
-            html.Div(
-                children=[
-
-                    html.Div(children=[
-
-                        html.Label('Date Range Selector',
-                            style={
-                            'textAlign': 'left',
-                            'color': "#7FDBFF"
-                            }
-                        ),
-                        dcc.DatePickerRange(
-                            id='my-date-picker-range',
-                            month_format='MMM Do, YY',
-                            start_date=df.startTimeLocal.min(),
-                            end_date=df.startTimeLocal.max(),
-                            end_date_placeholder_text="End Date",
-                            min_date_allowed=df.startTimeLocal.min(),
-                            max_date_allowed=dt.today()
-                        ),
-                        html.Div(id='output-container-date-picker-range'
+                        html.Div(
+                            children=[
+                                html.P('Select Dates Below',
+                                    style={'textAlign': 'center','color': "#779ECB"}
+                                ),
+                                dcc.DatePickerRange(
+                                    id='my-date-picker-range',
+                                    month_format='MMM Do, YY',
+                                    start_date=df.startTimeLocal.min(),
+                                    end_date=df.startTimeLocal.max(),
+                                    end_date_placeholder_text="End Date",
+                                    min_date_allowed=df.startTimeLocal.min(),
+                                    max_date_allowed=dt.today()
+                                ),
+                                html.Div(id='output-container-date-picker-range'
+                                )
+                            ],
+                            id='date',
+                            style={'padding': 10,'textAlign': 'center'}
                         )
-
-                    ]),
-                ]
-            )
-
+                    ]
+                ),
+                html.Div(
+                    html.Img(
+                            src=app.get_asset_url("dash-logo.png"),
+                            id="plotly-image",
+                            style={
+                                "height": "60px",
+                                "width": "auto",
+                                "margin-bottom": "25px",
+                                "align":"left"
+                            },
+                    ),
+                    id='image'
+                )
             ],
             className='four columns div-user-controls',
             id='left',
@@ -89,7 +94,6 @@ app.layout = html.Div(
             children=[
 
                 dcc.Graph(figure=bar,id='bar'),
-
                 dcc.Graph(figure=sca,id='scatter')
             ],
             className='eight columns div-for-charts bg-grey',

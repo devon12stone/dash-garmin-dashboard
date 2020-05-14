@@ -56,7 +56,9 @@ def make_scatter_plot(df):
         title={'text':'Duration vs Calories Burnt','y':0.9,'x':0.5,'xanchor':'center','yanchor':'top'},
         plot_bgcolor='whitesmoke',
         font={'family':"Courier New, monospace",'size':10,'color':"#7f7f7f"},
-        legend={'x': 0.75, 'y': 0.1, 'traceorder':'normal'}
+        legend={'x': 0.75, 'y': 0.1, 'traceorder':'normal'},
+        xaxis_title='Duration',
+        yaxis_title='Calories Burnt'
 
     )
 
