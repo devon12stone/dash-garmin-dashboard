@@ -15,10 +15,6 @@ from figures import make_bar_chart, make_scatter_plot
 #df = get_garmin_data(EMAIL,PASSWORD)
 df = pd.read_csv('data.csv')
 
-###### figures ######
-bar = make_bar_chart(df)
-sca = make_scatter_plot(df)
-
 ###### initialize app ######
 app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
 
@@ -135,8 +131,8 @@ app.layout = html.Div(
                     style={"display": "flex", "flex-direction": "row",'align': 'center','padding': 10}
                 ),
 
-                dcc.Graph(figure=bar,id='bar'),
-                dcc.Graph(figure=sca,id='scatter')
+                dcc.Graph(figure=make_bar_chart(df),id='bar'),
+                dcc.Graph(figure=make_scatter_plot(df),id='scatter')
             ],
             className='eight columns div-for-charts bg-grey',
             id='right',
