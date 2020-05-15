@@ -26,7 +26,7 @@ def get_garmin_data(username,password):
         df['activityType'] = df['activityName'].str.split(' ').str[-1]
         df['startTimeLocal'] = pd.to_datetime(df['startTimeLocal'], errors='coerce')
         df['startTimeLocal'] = df['startTimeLocal'].dt.date
-
+        
         return df
 
     except:

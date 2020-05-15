@@ -59,11 +59,21 @@ app.layout = html.Div(style={'backgroundColor': '#ffffff'}, children=[
                 end_date=df.startTimeLocal.max(),
                 end_date_placeholder_text="End Date",
                 min_date_allowed=df.startTimeLocal.min(),
-                max_date_allowed=dt.today(),
-
-
+                max_date_allowed=dt.today()
             ),
-            html.Div(id='output-container-date-picker-range')
+            html.Div(id='output-container-date-picker-range',
+                     className="mini_container"),
+
+            html.Div(
+                [html.P("Number of Days"),html.H6(id="days-text")],
+                id="days",
+                className="mini_container",
+            ),
+            html.Div(
+                [html.P("Number of Activities"),html.H6(id="activities-text")],
+                id="activities",
+                className="mini_container",
+            )
 
         ]),
 
@@ -80,7 +90,32 @@ app.layout = html.Div(style={'backgroundColor': '#ffffff'}, children=[
 
 ])
 
-# call backs
+###### call backs######
+# text call backs
+@app.callback(
+    dash.dependencies.Output(component_id='days-text', component_property='children'),
+    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
+     dash.dependencies.Input('my-date-picker-range', 'end_date')]
+)
+def update_days(start_date,end_date):
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    df2['startTimeLocal'] = pd.to_datetime(df2['startTimeLocal'], errors='coerce')
+    df2['startTimeLocal'] = df2['startTimeLocal'].dt.date
+    delta = df2.startTimeLocal.max() - df2.startTimeLocal.min()
+    return delta.days
+
+@app.callback(
+    dash.dependencies.Output(component_id='activities-text', component_property='children'),
+    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
+     dash.dependencies.Input('my-date-picker-range', 'end_date')]
+)
+def update_activities(start_date,end_date):
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    return df2.activityId.nunique()
+
+# figure call backs
 @app.callback(
     dash.dependencies.Output('bar', 'figure'),
     [dash.dependencies.Input('my-date-picker-range', 'start_date'),
