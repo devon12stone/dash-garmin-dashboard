@@ -21,10 +21,6 @@ def make_bar_chart(df):
                  color='Activity Type'
     )
 
-    # remove activity type from legend
-    #for trace in bar.data:
-    #    trace.name = trace.name.split('=')[1]
-
     bar.update_layout(
         title={'text':'Exercise Type Breakdown','y':0.9,'x':0.5,'xanchor':'center','yanchor':'top'},
         plot_bgcolor='whitesmoke',
@@ -44,10 +40,6 @@ def make_scatter_plot(df):
                      hover_data=['duration', 'calories'],
                      color='activityType'
     )
-
-    # remove activity type from legend
-    #for trace in sca.data:
-    #    trace.name = trace.name.split('=')[1]
 
     sca.update_traces(
         marker={'size':12}
