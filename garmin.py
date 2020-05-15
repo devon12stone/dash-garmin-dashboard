@@ -1,6 +1,7 @@
 # extract garmin data
 from garminconnect import Garmin
 import pandas as pd
+from datetime import date as dt
 
 def get_garmin_data(username,password):
     # input: username and passwrod
