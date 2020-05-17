@@ -111,34 +111,26 @@ app.layout = html.Div(
 )
 def update_right(start_date, end_date):
     children = []
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
 
     #  ------- calculate KPIs
     # number of days in selected range
     n_days = (datetime.strptime(end_date,'%Y-%m-%d') - datetime.strptime(start_date,'%Y-%m-%d')).days
     
     # number of activities in selected range
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
     n_activities = df2.activityId.nunique()
 
     # average duration of activity
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
     avg_dur = df2.duration.mean()
 
     # average calories
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
     avg_cal = df2.calories.mean()
 
     # average distance
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
     avg_dist = df2.distance.div(1000).mean()
 
     # average heart rate
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
     avg_hr = df2.averageHR.mean()
 
     # add kpi div to children of "right" parent
@@ -183,103 +175,11 @@ def update_right(start_date, end_date):
     )
     
     # add figures to "right" parent
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
     children.append(dcc.Graph(figure=make_bar_chart(df2), id='bar'))
     children.append(dcc.Graph(figure=make_scatter_plot(df2), id='scatter'))
 
     return children
 
-
-###### call backs ######
-# # text kpi callbacks
-# @app.callback(
-#     Output(component_id='kpis', component_property='children'),
-#     [Input('my-date-picker-range', 'start_date'),
-#      Input('my-date-picker-range', 'end_date')]
-# )
-# def display_kpis(start_date, end_date):
-#     # number of days in selected range
-#     n_days = (datetime.strptime(end_date,'%Y-%m-%d') - datetime.strptime(start_date,'%Y-%m-%d')).days
-    
-#     # number of activities in selected range
-#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-#     df2 = df.loc[mask]
-#     n_activities = df2.activityId.nunique()
-
-#     # average duration of activity
-#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-#     df2 = df.loc[mask]
-#     avg_dur = df2.duration.mean()
-
-#     # average calories
-#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-#     df2 = df.loc[mask]
-#     avg_cal = df2.calories.mean()
-
-#     # average distance
-#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-#     df2 = df.loc[mask]
-#     avg_dist = df2.distance.div(1000).mean()
-
-#     # average heart rate
-#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-#     df2 = df.loc[mask]
-#     avg_hr = df2.averageHR.mean()
-
-#     # populate html elements with KPI values
-#     kpis=[
-#             html.Div(
-#                 [html.P("Number of Days"),html.H6(n_days)],
-#                 id="days",
-#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-#             ),
-#             html.Div(
-#                 [html.P("Number of Activities"),html.H6(n_activities)],
-#                 id="activities",
-#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-#             ),
-#             html.Div(
-#                 [html.P("Avg Duration of Activities"),html.H6(f'{avg_dur:.2f} minutes')],
-#                 id="duration",
-#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-#             ),
-#             html.Div(
-#                 [html.P("Avg Calories Burnt"),html.H6(f'{avg_cal:.2f}')],
-#                 id="calories",
-#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-#             )
-#             ,
-#             html.Div(
-#                 [html.P("Avg Distance"),html.H6(f'{avg_dist:.2f} km')],
-#                 id="distance",
-#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-#             ),
-#             html.Div(
-#                 [html.P("Avg Heart Rate"),html.H6(f'{avg_hr:.2f} beats/min')],
-#                 id="heart_rate",
-#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-#             )
-#         ]
-
-#     return kpis
-
-
-# @app.callback(
-#     Output(component_id='figures', component_property='children'),
-#     [Input('my-date-picker-range', 'start_date'),
-#      Input('my-date-picker-range', 'end_date')]
-# )
-# def update_figures(start_date, end_date):
-#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-#     df2 = df.loc[mask]
-#     # figures
-#     figures = [
-#         dcc.Graph(figure=make_bar_chart(df2), id='bar'),
-#         dcc.Graph(figure=make_scatter_plot(df2), id='scatter')
-#     ]
-
-#     return figures
 
 
 if __name__ == '__main__':
