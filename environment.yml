@@ -4,11 +4,10 @@ channels:
 dependencies:
   - ipython
   - pip
-  - flask
   - numpy
-  - dash
   - pandas
+  - flask
+  - dash
   - plotly
   - pip:
     - garminconnect
-

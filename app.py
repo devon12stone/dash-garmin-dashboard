@@ -3,6 +3,7 @@ from datetime import datetime
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.express as px
@@ -18,15 +19,22 @@ df = pd.read_csv('data.csv')
 ###### initialize app ######
 app = dash.Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
 
-# create app layout
+# create app layout (main_container)
 app.layout = html.Div(
+    id='main-container',
+    style={'backgroundColor': '#ffffff','display': 'inline-block'},
     children=[
 
         # define the left elements
         html.Div(
+            className='four columns div-user-controls',
+            id='left',
+            style={'display': 'inline-block','height':'100%','verticalAlign':'middle','top':'0px','left':'0px'},
             children=[
 
                 html.Div(
+                    id='title',
+                    style={'padding': 10,'backgroundColor': '#F9F9F9'},
                     children=[
 
                             html.H1(
@@ -38,15 +46,15 @@ app.layout = html.Div(
                                 children='This dashboard allows users to view and analyse their excerise trends.',
                                 style={'textAlign': 'center','color': '#779ECB'}
                             )
-                        ],
-                        id='title',
-                        style={'padding': 10,'backgroundColor': '#F9F9F9'}
+                        ]
                 ),
 
                 html.Div(
                     children=[
 
                         html.Div(
+                            id='date',
+                            style={'padding': 10,'textAlign': 'center','backgroundColor': '#F9F9F9'},
                             children=[
                                 html.P('Select Dates Below',
                                     style={'textAlign': 'center','color': "#779ECB"}
@@ -62,14 +70,15 @@ app.layout = html.Div(
                                 ),
                                 html.Div(id='output-container-date-picker-range'
                                 )
-                            ],
-                            id='date',
-                            style={'padding': 10,'textAlign': 'center','backgroundColor': '#F9F9F9'}
+                            ]
                         )
                     ]
                 ),
                 html.Div(
-                    html.Img(
+                    id='image',
+                    style={'padding': 10,'backgroundColor': '#F9F9F9'},
+                    children = [
+                        html.Img(
                             src=app.get_asset_url("dash-logo.png"),
                             id="plotly-image",
                             style={
@@ -78,165 +87,200 @@ app.layout = html.Div(
                                 "margin-bottom": "25px",
                                 "align":"left"
                             },
-                    ),
-                    id='image',
-                    style={'padding': 10,'backgroundColor': '#F9F9F9'}
+                        )
+                    ]
                 )
-            ],
-            className='four columns div-user-controls',
-            id='left',
-            style={'display': 'inline-block','height':'100%','verticalAlign':'middle','top':'0px','left':'0px'}
+            ]
         ),
 
         # define the right elements
         html.Div(
-            children=[
-
-                html.Div(
-                    children=[
-                        html.Div(
-                            [html.P("Number of Days"),html.H6(id="days_text")],
-                            id="days",
-                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-                        ),
-                        html.Div(
-                            [html.P("Number of Activities"),html.H6(id="activities_text")],
-                            id="activities",
-                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-                        ),
-                        html.Div(
-                            [html.P("Avg Duration of Activities"),html.H6(id="duration_text")],
-                            id="duration",
-                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-                        ),
-                        html.Div(
-                            [html.P("Avg Calories Burnt"),html.H6(id="cal_text")],
-                            id="calories",
-                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-                        )
-                        ,
-                        html.Div(
-                            [html.P("Avg Distance"),html.H6(id="dist_text")],
-                            id="distance",
-                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-                        ),
-                        html.Div(
-                            [html.P("Avg Heart Rate"),html.H6(id="hr_text")],
-                            id="heart_rate",
-                            style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
-                        )
-
-                    ],
-                    id='kpi_days',
-                    style={"display": "flex", "flex-direction": "row",'align': 'center','padding': 10}
-                ),
-
-                dcc.Graph(figure=make_bar_chart(df),id='bar'),
-                dcc.Graph(figure=make_scatter_plot(df),id='scatter')
-            ],
             className='eight columns div-for-charts bg-grey',
             id='right',
             style={'backgroundColor': '#F9F9F9','display': 'inline-block'}
         )
 
-    ],
-    id='main-container',
-    style={'backgroundColor': '#ffffff','display': 'inline-block'}
+    ]
 )
+
+
+@app.callback(
+    Output(component_id='right', component_property='children'),
+    [Input('my-date-picker-range', 'start_date'),
+     Input('my-date-picker-range', 'end_date')]
+)
+def update_right(start_date, end_date):
+    children = []
+
+    #  ------- calculate KPIs
+    # number of days in selected range
+    n_days = (datetime.strptime(end_date,'%Y-%m-%d') - datetime.strptime(start_date,'%Y-%m-%d')).days
+    
+    # number of activities in selected range
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    n_activities = df2.activityId.nunique()
+
+    # average duration of activity
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    avg_dur = df2.duration.mean()
+
+    # average calories
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    avg_cal = df2.calories.mean()
+
+    # average distance
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    avg_dist = df2.distance.div(1000).mean()
+
+    # average heart rate
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    avg_hr = df2.averageHR.mean()
+
+    # add kpi div to children of "right" parent
+    children.append(
+        html.Div(
+            id='kpi_days',
+            style={"display": "flex", "flex-direction": "row",'align': 'center','padding': 10},
+            children=[
+                html.Div(
+                    [html.P("Number of Days"),html.H6(n_days)],
+                    id="days",
+                    style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                ),
+                html.Div(
+                    [html.P("Number of Activities"),html.H6(n_activities)],
+                    id="activities",
+                    style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                ),
+                html.Div(
+                    [html.P("Avg Duration of Activities"),html.H6(f'{avg_dur:.2f} minutes')],
+                    id="duration",
+                    style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                ),
+                html.Div(
+                    [html.P("Avg Calories Burnt"),html.H6(f'{avg_cal:.2f}')],
+                    id="calories",
+                    style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                )
+                ,
+                html.Div(
+                    [html.P("Avg Distance"),html.H6(f'{avg_dist:.2f} km')],
+                    id="distance",
+                    style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                ),
+                html.Div(
+                    [html.P("Avg Heart Rate"),html.H6(f'{avg_hr:.2f} bpm')],
+                    id="heart_rate",
+                    style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+                )
+            ]
+        )
+    )
+    
+    # add figures to "right" parent
+    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+    df2 = df.loc[mask]
+    children.append(dcc.Graph(figure=make_bar_chart(df2), id='bar'))
+    children.append(dcc.Graph(figure=make_scatter_plot(df2), id='scatter'))
+
+    return children
+
 
 ###### call backs ######
-# text kpi callbacks
-@app.callback(
-    dash.dependencies.Output('days_text', 'children'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-     dash.dependencies.Input('my-date-picker-range', 'end_date')]
-)
-def update_days_text(start_date, end_date):
-    days = (datetime.strptime(end_date,'%Y-%m-%d') - datetime.strptime(start_date,'%Y-%m-%d')).days
-    return days
+# # text kpi callbacks
+# @app.callback(
+#     Output(component_id='kpis', component_property='children'),
+#     [Input('my-date-picker-range', 'start_date'),
+#      Input('my-date-picker-range', 'end_date')]
+# )
+# def display_kpis(start_date, end_date):
+#     # number of days in selected range
+#     n_days = (datetime.strptime(end_date,'%Y-%m-%d') - datetime.strptime(start_date,'%Y-%m-%d')).days
+    
+#     # number of activities in selected range
+#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+#     df2 = df.loc[mask]
+#     n_activities = df2.activityId.nunique()
 
-@app.callback(
-    dash.dependencies.Output('activities_text', 'children'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-     dash.dependencies.Input('my-date-picker-range', 'end_date')]
-)
-def update_activities_text(start_date, end_date):
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
-    no_activities = df2.activityId.nunique()
-    return no_activities
+#     # average duration of activity
+#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+#     df2 = df.loc[mask]
+#     avg_dur = df2.duration.mean()
 
-@app.callback(
-    dash.dependencies.Output('duration_text', 'children'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-     dash.dependencies.Input('my-date-picker-range', 'end_date')]
-)
-def update_duration_text(start_date, end_date):
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
-    avg_dur = round(df2.duration.mean(),2)
-    avg_str = "{dur} minutes".format(dur=str(avg_dur))
-    return avg_str
+#     # average calories
+#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+#     df2 = df.loc[mask]
+#     avg_cal = df2.calories.mean()
 
-@app.callback(
-    dash.dependencies.Output('cal_text', 'children'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-     dash.dependencies.Input('my-date-picker-range', 'end_date')]
-)
-def update_calories_text(start_date, end_date):
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
-    avg_cal = round(df2.calories.mean(),2)
-    return avg_cal
+#     # average distance
+#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+#     df2 = df.loc[mask]
+#     avg_dist = df2.distance.div(1000).mean()
 
-@app.callback(
-    dash.dependencies.Output('dist_text', 'children'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-     dash.dependencies.Input('my-date-picker-range', 'end_date')]
-)
-def update_distance_text(start_date, end_date):
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
-    avg_dist = round(df2.distance.div(1000).mean(),2)
-    avg_str = "{d} km".format(d=str(avg_dist))
-    return avg_str
+#     # average heart rate
+#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+#     df2 = df.loc[mask]
+#     avg_hr = df2.averageHR.mean()
 
-@app.callback(
-    dash.dependencies.Output('hr_text', 'children'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-     dash.dependencies.Input('my-date-picker-range', 'end_date')]
-)
-def update_distance_text(start_date, end_date):
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
-    avg_hr = round(df2.averageHR.mean(),2)
-    avg_str = "{hr} beats/min".format(hr=str(avg_hr))
-    return avg_str
+#     # populate html elements with KPI values
+#     kpis=[
+#             html.Div(
+#                 [html.P("Number of Days"),html.H6(n_days)],
+#                 id="days",
+#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+#             ),
+#             html.Div(
+#                 [html.P("Number of Activities"),html.H6(n_activities)],
+#                 id="activities",
+#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+#             ),
+#             html.Div(
+#                 [html.P("Avg Duration of Activities"),html.H6(f'{avg_dur:.2f} minutes')],
+#                 id="duration",
+#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+#             ),
+#             html.Div(
+#                 [html.P("Avg Calories Burnt"),html.H6(f'{avg_cal:.2f}')],
+#                 id="calories",
+#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+#             )
+#             ,
+#             html.Div(
+#                 [html.P("Avg Distance"),html.H6(f'{avg_dist:.2f} km')],
+#                 id="distance",
+#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+#             ),
+#             html.Div(
+#                 [html.P("Avg Heart Rate"),html.H6(f'{avg_hr:.2f} beats/min')],
+#                 id="heart_rate",
+#                 style={'padding': 10,'textAlign': 'center','color': "#779ECB"}
+#             )
+#         ]
 
-# figure callbacks
-@app.callback(
-    dash.dependencies.Output('bar', 'figure'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-     dash.dependencies.Input('my-date-picker-range', 'end_date')]
-)
+#     return kpis
 
-def update_bar(start_date, end_date):
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
-    bar2 = make_bar_chart(df2)
-    return bar2
 
-@app.callback(
-    dash.dependencies.Output('scatter', 'figure'),
-    [dash.dependencies.Input('my-date-picker-range', 'start_date'),
-     dash.dependencies.Input('my-date-picker-range', 'end_date')]
-)
+# @app.callback(
+#     Output(component_id='figures', component_property='children'),
+#     [Input('my-date-picker-range', 'start_date'),
+#      Input('my-date-picker-range', 'end_date')]
+# )
+# def update_figures(start_date, end_date):
+#     mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
+#     df2 = df.loc[mask]
+#     # figures
+#     figures = [
+#         dcc.Graph(figure=make_bar_chart(df2), id='bar'),
+#         dcc.Graph(figure=make_scatter_plot(df2), id='scatter')
+#     ]
 
-def update_scatetr(start_date, end_date):
-    mask = (df['startTimeLocal'] > start_date) & (df['startTimeLocal'] <= end_date)
-    df2 = df.loc[mask]
-    sca2 = make_scatter_plot(df2)
-    return sca2
+#     return figures
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
