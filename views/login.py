@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from garmin import get_garmin_data
-from app import app,user1
+from app import app, user1
 
 # login layout
 layout = html.Div(
@@ -50,7 +50,7 @@ def sucess(n_clicks, input1, input2):
         user1.update_username(input1)
         user1.update_password(input2)
         user1.update_data(data)
-        return '/success'
+        return '/home'
     except:
         pass 
 
@@ -63,7 +63,7 @@ def update_output(n_clicks, input1, input2):
     if n_clicks > 0:
         try:
             get_garmin_data(input1,input2)
-            return '/success'
+            return '/home'
         except:
             return 'Incorrect username or password'
     else:

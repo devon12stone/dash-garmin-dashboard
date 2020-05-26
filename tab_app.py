@@ -1,21 +1,25 @@
 from datetime import date as dt
 from datetime import datetime
-import pandas as pd
-import plotly.graph_objs as go
-import plotly.express as px
+import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import pandas as pd
+import plotly.graph_objs as go
+import plotly.express as px
 from garmin import get_garmin_data
 from figures import make_bar_chart, make_scatter_plot
-from app import app, user1
 
 
-df = user1.data
+###### bring in garmin data ######
+df = pd.read_csv('data.csv')
+
+###### initialize app ######
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # create app layout (main_container)
-layout = dbc.Container(
+app.layout = dbc.Container(
     [
         dcc.Store(id='store'),
         html.H1('Garmin Connect Dashboard'),
@@ -128,3 +132,7 @@ def update_tab(start_date, end_date, active_tab):
         children.append(dcc.Graph(figure=make_scatter_plot(df2), id='scatter'))
 
     return children
+
+
+if __name__ == '__main__':
+    app.run_server(debug=True)

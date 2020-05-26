@@ -48,6 +48,9 @@ def display_page(pathname):
     elif pathname == '/success':
         from views import success
         return success.layout
+    elif pathname == '/home':
+        from views import home
+        return home.layout
     else:
         return '404'
 
