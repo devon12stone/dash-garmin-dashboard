@@ -2,8 +2,9 @@
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-from views import login
+
 from app import app, user1
+from views import login, home
 
 
 header = html.Div(
@@ -25,10 +26,10 @@ header = html.Div(
 )
 
 app.layout = html.Div(
-    [
-        header,
-        html.Div(id='page-content', className='content'),
+    [   
         dcc.Location(id='url', refresh=False),
+        header,
+        html.Div(id='page-content', className='content')
     ]
 )
 
@@ -36,19 +37,16 @@ app.layout = html.Div(
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    if pathname == '/':
+    # TODO: if user goes to / then it should either
+    # go to login screen (if not logged in) or home
+    if pathname == '/login':
         return login.layout
-    elif pathname == '/login':
-        return login.layout
-    elif pathname == '/success':
-        from views import success
-        return success.layout
+    # TODO: if user tries to navigate to home while
+    # not logged in, it should send them to login
     elif pathname == '/home':
-        from views import home
         return home.layout
     else:
         return '404'
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)

@@ -9,10 +9,12 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from garmin import get_garmin_data
 from figures import make_bar_chart, make_scatter_plot
+
 from app import app, user1
 
-
-df = user1.data
+# TODO: use logged-in user's data
+# df = user1.data
+df = pd.read_csv('data.csv')
 
 # create app layout (main_container)
 layout = dbc.Container(
@@ -81,6 +83,8 @@ def update_tab(start_date, end_date, active_tab):
     avg_hr = df2.averageHR.mean()
 
     # add kpi div to children of "tab-content" parent
+    # TODO: make these KPIs specific to the tab selected
+    # TODO: move the logic into a separate `tabs` subfolder?
     children.append(
         html.Div(
             id='kpi_days',
