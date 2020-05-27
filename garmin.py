@@ -8,19 +8,19 @@ def get_garmin_data(username,password):
     # output: normalised pandas df containing garmain connect data of username
 
     # connect garmin client
-    client = Garmin(username,password)
+    client = Garmin(username, password)
     client.login()
-    activities = client.get_activities(0,1000)
+    activities = client.get_activities(0, 1000)
 
     # store as dataframe
     df = pd.DataFrame(activities)
     # make data useable
     wanted = ['activityId','activityName','startTimeLocal','distance',
-                'duration','elevationGain','elevationLoss',
-                'averageSpeed','maxSpeed','calories',
-                'averageHR','maxHR','averageRunningCadenceInStepsPerMinute',
-                'averageBikingCadenceInRevPerMinute','averageSwimCadenceInStrokesPerMinute',
-                'aerobicTrainingEffect','anaerobicTrainingEffect']
+              'duration','elevationGain','elevationLoss',
+              'averageSpeed','maxSpeed','calories',
+              'averageHR','maxHR','averageRunningCadenceInStepsPerMinute',
+              'averageBikingCadenceInRevPerMinute','averageSwimCadenceInStrokesPerMinute',
+              'aerobicTrainingEffect','anaerobicTrainingEffect']
 
     df = df[df.columns.intersection(wanted)]
     df['duration'] = df['duration'].div(60).round(2)
