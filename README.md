@@ -21,7 +21,7 @@ Assuming you have already signed up for a [Garmin Connect](https://connect.garmi
 Then, the dash app can be run from the command line using the following command:
 
 ```{bash}
-python app.py
+python index.py
 ```
 
 ### Built With
