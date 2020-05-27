@@ -3,7 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 from views import login
-from app import app,user1
+from app import app, user1
 
 
 header = html.Div(
@@ -27,12 +27,7 @@ header = html.Div(
 app.layout = html.Div(
     [
         header,
-        html.Div([
-            html.Div(
-                html.Div(id='page-content', className='content'),
-                className='content-container'
-            ),
-        ], className='container-width'),
+        html.Div(id='page-content', className='content'),
         dcc.Location(id='url', refresh=False),
     ]
 )
