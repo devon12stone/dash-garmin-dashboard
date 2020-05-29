@@ -2,7 +2,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from garmin import get_garmin_data
-from app import app,user1
+from app import app, user1
+import pandas as pd
 
 # login layout
 layout = html.Div(
@@ -44,27 +45,37 @@ layout = html.Div(
               [Input('login-button', 'n_clicks')],
               [State('uname-box', 'value'),
                State('pwd-box', 'value')])
-def sucess(n_clicks, input1, input2):
-    try:
-        data = get_garmin_data(input1,input2)
-        user1.update_username(input1)
-        user1.update_password(input2)
+def sucess(n_clicks, username, password):
+    garmin = ["Success",pd.read_csv('data.csv')]
+    #garmin = get_garmin_data(username,password)
+    if garmin[0] == "Success":
+        data = garmin[1]
+        user1.update_username(username)
+        user1.update_password(password)
         user1.update_data(data)
-        return '/success'
-    except:
+        user1.update_status(True)
+        return '/home'
+    else:
         pass 
+
 
 # second login callback - unsuccessful logins
 @app.callback(Output('output-state', 'children'),
               [Input('login-button', 'n_clicks')],
               [State('uname-box', 'value'),
                State('pwd-box', 'value')])
-def update_output(n_clicks, input1, input2):
+def update_output(n_clicks, username, password):
     if n_clicks > 0:
-        try:
-            get_garmin_data(input1,input2)
-            return '/success'
-        except:
-            return 'Incorrect username or password'
+        #garmin = get_garmin_data(username,password)
+        garmin = ["Success",pd.read_csv('data.csv')]
+        if garmin[0] == "Success":
+            data = garmin[1]
+            user1.update_username(username)
+            user1.update_password(password)
+            user1.update_data(data)
+            user1.update_status(True)
+            return ''
+        else:
+            return garmin[0]
     else:
-        return ''
+        ''
